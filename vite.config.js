@@ -63,7 +63,7 @@ export default defineConfig(({ command }) => {
   const environment = command === 'serve' ? 'dev' : 'stable';
 
   return {
-    base: '/doge-v5/', // <--- ADD THIS LINE RIGHT HERE
+    base: './doge-v5/', // <--- ADD THIS LINE RIGHT HERE
     plugins: [react()],
     // Keep the rest of your existing code below this line...
 

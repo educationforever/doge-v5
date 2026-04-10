@@ -15,20 +15,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const useBare = process.env.BARE === "false" ? false : true;
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 logging.set_level(logging.NONE);
 let bare;
 
-Object.assign(wisp.options, {
-  dns_method: 'resolve',
-  dns_servers: ['1.1.1.3', '1.0.0.3'],
-  dns_result_order: 'ipv4first',
-});
-
 const routeRequest = (req, resOrSocket, head) => {
   if (req.url?.startsWith('/wisp/')) return wisp.routeRequest(req, resOrSocket, head);
-  if (bare.shouldRoute(req))
+  if (bare?.shouldRoute(req))
     return head ? bare.routeUpgrade(req, resOrSocket, head) : bare.routeRequest(req, resOrSocket);
 };
 
@@ -56,18 +49,13 @@ const obf = {
   },
 };
 
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
 export default defineConfig(({ command }) => {
   const environment = command === 'serve' ? 'dev' : 'stable';
 
   return {
-    base: './doge-v5/', // <--- ADD THIS LINE RIGHT HERE
-    plugins: [react()],
-    // Keep the rest of your existing code below this line...
+    // 1. FIXED PATHS FOR GITHUB PAGES
+    base: '/doge-v5/', 
 
-  return {
     plugins: [
       react(),
       vitePluginBundleObfuscator(obf),
@@ -97,36 +85,6 @@ export default defineConfig(({ command }) => {
           server.middlewares.use((req, res, next) => routeRequest(req, res) || next());
         },
       },
-      {
-        name: 'search',
-        apply: 'serve',
-        configureServer(s) {
-          s.middlewares.use('/return', async (req, res) => {
-            const q = new URL(req.url, 'http://x').searchParams.get('q');
-            try {
-              const r = q && (await fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}`));
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(r ? await r.json() : { error: 'query parameter?' }));
-            } catch {
-              res.end(JSON.stringify({ error: 'request failed' }));
-            }
-          });
-        },
-      },
-      {
-        name: 'redirect',
-        apply: 'serve',
-        configureServer(server) {
-          server.middlewares.use((req, res, next) => {
-            if (req.url === '/ds') {
-              res.writeHead(302, { Location: 'https://discord.gg/ZBef7HnAeg' });
-              res.end();
-            } else {
-              next();
-            }
-          });
-        },
-      }
     ],
     build: {
       esbuild: { 
@@ -145,28 +103,9 @@ export default defineConfig(({ command }) => {
           assetFileNames: 'assets/[hash].[ext]',
           manualChunks: (id) => (id.includes('node_modules') ? 'vendor-modules' : undefined),
         },
-        treeshake: {
-          moduleSideEffects: 'no-external'
-        }
       },
       minify: 'esbuild',
       sourcemap: false
-    },
-    css: {
-      modules: {
-        generateScopedName: () =>
-          String.fromCharCode(97 + Math.floor(Math.random() * 17)) +
-          Math.random().toString(36).substring(2, 8),
-      },
-    },
-    server: {
-      proxy: {
-        '/assets/img': {
-          target: 'https://dogeub-assets.pages.dev',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/assets\/img/, '/img'),
-        },
-      },
     },
     define: {
       __ENVIRONMENT__: JSON.stringify(environment)

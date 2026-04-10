@@ -56,8 +56,16 @@ const obf = {
   },
 };
 
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
 export default defineConfig(({ command }) => {
   const environment = command === 'serve' ? 'dev' : 'stable';
+
+  return {
+    base: './', // <--- ADD THIS LINE RIGHT HERE
+    plugins: [react()],
+    // Keep the rest of your existing code below this line...
 
   return {
     plugins: [

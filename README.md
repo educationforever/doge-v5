@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center">  
   
   <img src="https://github.com/DogeNetwork/dogeub/blob/main/public/logo.svg" width="322" />
   <br />
